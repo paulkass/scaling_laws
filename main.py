@@ -1,11 +1,9 @@
 import numpy as np
 import tensorflow as tf
+import sys
 from tensorflow import keras
 
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
-#dataset = tf.keras.datasets.cifar10
-y_binary_train = tf.keras.utils.to_categorical(y_train)
-y_binary_test = tf.keras.utils.to_categorical(y_test)
 
 output_size = 10
 
@@ -18,17 +16,21 @@ model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 model.add(tf.keras.layers.Conv2D(128, kernel_size=(3, 3), activation='relu'))
 model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 model.add(tf.keras.layers.Flatten())
-model.add(tf.keras.layers.Dense(128, activation='relu'))
-model.add(tf.keras.layers.Dense(output_size, activation='relu'))
-model.add(tf.keras.layers.Softmax())
+model.add(tf.keras.layers.Dense(512, activation='relu'))
+model.add(tf.keras.layers.Dense(256, activation='relu'))
+model.add(tf.keras.layers.Dense(output_size, activation='softmax'))
 
-model.compile(optimizer = tf.keras.optimizers.RMSprop(),
-        loss = tf.keras.losses.CategoricalCrossentropy(),
+model.summary()
+
+model.compile(optimizer = tf.keras.optimizers.Adam(),
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(),
         metrics = ["accuracy"])
 
 model.fit(x_train,
-        y_binary_train,
-        epochs = 20,
-        validation_data = (x_test, y_binary_test)
+        y_train,
+        epochs = 7,
+        verbose = 1,
+        validation_split = 0.3
 )
 
+print(model.evaluate(x_test, y_test, verbose = 1))
